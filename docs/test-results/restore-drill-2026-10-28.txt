@@ -1,0 +1,11 @@
+Table            live_rows  restored_rows
+users                    9              9
+requests                 1              1
+offers                   2              2
+bookings                 0              0
+payments                 0              0
+messages                 0              0
+reviews                  0              0
+schema_migrations         5              5
+App health on restored DB: {"status":"ok"}
+RESTORE VERIFIED (counts match live at time of check; recent writes may differ slightly).

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Original mark: a gold eighth-note whose flag curls into a "B" bowl, on plum. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#E0A526"
+        android:pathData="M47,30h6v38.5a10,10 0,1 1,-6 -9.2z" />
+    <path
+        android:fillColor="#E0A526"
+        android:pathData="M53,30c10,0 17,5 17,12c0,5 -4,8.5 -9,9.5c6,1 10,5 10,10.5c0,7 -7,11 -14,11v-5.5c5,0 8,-2.5 8,-5.5s-3,-5.5 -8,-5.5v-5c4,0 7,-2 7,-4.5s-3,-5 -11,-5z" />
+</vector>

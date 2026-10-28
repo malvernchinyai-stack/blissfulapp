@@ -1,0 +1,21 @@
+# secrets & local config
+.env
+*.env.local
+backend/tests/.env.test
+*.jks
+*.keystore
+google-services.json
+*service-account*.json
+local.properties
+
+# runtime data
+backend/storage/
+backend/junit.xml
+
+# build output
+android/.gradle/
+android/build/
+android/app/build/
+android/.idea/
+*.iml
+.DS_Store

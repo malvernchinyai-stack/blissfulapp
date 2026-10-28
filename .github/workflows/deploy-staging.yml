@@ -1,0 +1,56 @@
+name: Deploy staging (app.blissfulevents.co.zw)
+
+# Manual only. Requires the "staging" GitHub environment (add required reviewers there) and these secrets:
+#   STAGING_SSH_HOST, STAGING_SSH_PORT, STAGING_SSH_USER, STAGING_SSH_KEY, STAGING_APP_DIR, STAGING_WEB_ROOT
+# The server's .env is created once by hand (see docs/DEPLOYMENT.md) and is never overwritten by this workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      apk_run_id:
+        description: "Android CI run id whose APK should be published (optional)"
+        required: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          echo "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${{ secrets.STAGING_SSH_PORT }}" "${{ secrets.STAGING_SSH_HOST }}" >> ~/.ssh/known_hosts
+      - name: Upload backend code (excludes .env, storage, tests)
+        run: |
+          rsync -az --delete -e "ssh -p ${{ secrets.STAGING_SSH_PORT }}" \
+            --exclude '.env' --exclude 'storage/' --exclude 'tests/' --exclude 'public/' \
+            backend/ "${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }}:${{ secrets.STAGING_APP_DIR }}/"
+          rsync -az -e "ssh -p ${{ secrets.STAGING_SSH_PORT }}" backend/public/ \
+            "${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }}:${{ secrets.STAGING_WEB_ROOT }}/"
+      - name: Run migrations
+        run: ssh -p "${{ secrets.STAGING_SSH_PORT }}" "${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }}" "cd ${{ secrets.STAGING_APP_DIR }} && php bin/migrate.php"
+      - name: Fetch APK
+        if: ${{ inputs.apk_run_id != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: blissful-gigs-testing-apk
+          run-id: ${{ inputs.apk_run_id }}
+          github-token: ${{ github.token }}
+          path: apk
+      - name: Publish APK
+        if: ${{ inputs.apk_run_id != '' }}
+        run: |
+          f=$(ls apk/*.apk | head -1)
+          scp -P "${{ secrets.STAGING_SSH_PORT }}" "$f" "${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }}:${{ secrets.STAGING_APP_DIR }}/storage/app/blissful-gigs-testing.apk"
+      - name: Verify over HTTPS
+        run: |
+          curl -fsS https://app.blissfulevents.co.zw/health | grep -q '"ok"'
+          curl -fsS https://app.blissfulevents.co.zw/api/catalog > /dev/null
+          test "$(curl -s -o /dev/null -w '%{http_code}' https://app.blissfulevents.co.zw/admin/)" = "303"
+          curl -fsSI https://app.blissfulevents.co.zw/ | grep -qi 'x-robots-tag: noindex'
+          echo "Staging is reachable over HTTPS."

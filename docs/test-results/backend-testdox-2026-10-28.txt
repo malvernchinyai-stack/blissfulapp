@@ -1,0 +1,100 @@
+PHPUnit 9.6.17 by Sebastian Bergmann and contributors.
+
+Admin Web (Blissful\Tests\AdminWeb)
+ ✔ Login requires password and totp
+ ✔ Csrf is enforced
+ ✔ Role permissions
+ ✔ Settings change is audited
+ ✔ Moderator suspends user and hides reported message
+ ✔ Verification approval shows badge
+ ✔ Finance records payout
+ ✔ Public pages and sandbox checkout
+
+Auth (Blissful\Tests\Auth)
+ ✔ Register verify login and me
+ ✔ Registration does not reveal existing accounts
+ ✔ Validation and weak passwords
+ ✔ Unverified cannot login and code attempts are limited
+ ✔ Brute force lockout
+ ✔ Ip rate limit on login
+ ✔ Refresh rotation and reuse detection
+ ✔ Access token expires
+ ✔ Password reset revokes sessions
+ ✔ Role switching uses one account
+ ✔ Logout and change password
+ ✔ Account deletion
+ ✔ Emails are labelled as testing
+
+Booking (Blissful\Tests\Booking)
+ ✔ Lists and detail visibility
+ ✔ Client cancellation policy with data set "more than 72h before"
+ ✔ Client cancellation policy with data set "between 24h and 72h"
+ ✔ Client cancellation policy with data set "under 24h"
+ ✔ Musician cancellation reopens place and is free for client
+ ✔ Cancellation uses policy agreed at booking
+ ✔ Reschedule needs the other party
+ ✔ Reschedule into conflict is refused
+ ✔ Completion reviews and dispute window
+ ✔ Dispute freezes booking and staff resolve
+ ✔ Auto complete and reminders
+
+Chat Notification (Blissful\Tests\ChatNotification)
+ ✔ Chat between participants
+ ✔ Chat spam is rate limited
+ ✔ Notification dedupe history and prefs
+ ✔ Push delivery retries and drops dead tokens
+ ✔ Push not configured falls back to in app only
+
+Concurrency (Blissful\Tests\Concurrency)
+ ✔ Many offers one seat
+ ✔ Same offer accepted twice at once
+ ✔ Capacity two under load
+ ✔ One musician two clients same time
+
+Marketplace (Blissful\Tests\Marketplace)
+ ✔ Request validation
+ ✔ Draft publish and timezone storage
+ ✔ Matching notifies only relevant musicians
+ ✔ Offer rules
+ ✔ Edit withdraw resubmit and history
+ ✔ Counter offer requires explicit acceptance
+ ✔ Accept creates booking and closes position
+ ✔ Multiple positions and capacity
+ ✔ Musician cannot hold two places on one event
+ ✔ Overlapping bookings are prevented
+ ✔ Client cancels open request
+ ✔ Expiry job
+
+Payment (Blissful\Tests\Payment)
+ ✔ Sandbox payment and duplicate webhooks
+ ✔ Forged and mismatched callbacks are rejected
+ ✔ Failure then retry
+ ✔ Provider outage is reported honestly
+ ✔ Refund on cancellation is idempotent
+ ✔ Paid after cancellation is refunded
+ ✔ Payout queued after dispute window
+ ✔ Idempotency key replays response
+ ✔ Paynow hashing and status mapping
+
+Profile Money (Blissful\Tests\ProfileMoney)
+ ✔ Money is integer only
+ ✔ Fee setting changes future bookings only
+ ✔ Musician profile search and badges
+ ✔ Uploads are validated and private files protected
+ ✔ Totp matches rfc 6238 vector
+
+Security (Blissful\Tests\Security)
+ ✔ Protected endpoints need auth
+ ✔ Cross user access is denied
+ ✔ Accepting someone elses offer is impossible
+ ✔ Mass assignment and role escalation
+ ✔ Musician only endpoints require the role
+ ✔ Blocked users cannot interact
+ ✔ Reports and outsider reporting of private items
+ ✔ Sql injection attempts are inert
+ ✔ Logs redact secrets
+ ✔ Errors do not leak internals
+
+Time: 01:19.841, Memory: 10.00 MB
+
+OK (77 tests, 1044 assertions)

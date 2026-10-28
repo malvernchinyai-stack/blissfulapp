@@ -1,0 +1,64 @@
+name: Backend CI
+
+on:
+  push:
+    paths: ["backend/**", ".github/workflows/backend.yml"]
+  pull_request:
+    paths: ["backend/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: ci-root-only
+          MARIADB_DATABASE: blissful_test
+          MARIADB_USER: blissful
+          MARIADB_PASSWORD: devpass-local-only
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"   # lowest version supported on the DirectAdmin host
+          extensions: pdo_mysql, sodium, curl, gd, fileinfo, mbstring
+          tools: phpunit:9.6
+          coverage: none
+      - name: Lint PHP
+        run: find src bin public tests -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
+      - name: Test environment
+        run: |
+          cat > tests/.env.test <<EOF
+          APP_ENV=testing
+          APP_URL=https://app.test.local
+          APP_KEY=$(php -r 'echo base64_encode(random_bytes(32));')
+          DB_HOST=127.0.0.1
+          DB_NAME=blissful_test
+          DB_USER=blissful
+          DB_PASS=devpass-local-only
+          MAIL_DRIVER=log
+          PAYMENT_PROVIDER=sandbox
+          SANDBOX_WEBHOOK_SECRET=ci-sandbox-secret
+          STORAGE_PATH=/tmp/blissful-test-storage
+          EOF
+      - name: Run tests (includes parallel-process double-booking tests)
+        run: phpunit --log-junit junit.xml
+      - name: Secret scan (no credentials committed)
+        run: |
+          ! grep -RInE "(sk_live|PAYNOW_INTEGRATION_KEY=[A-Za-z0-9-]{8,}|BEGIN (RSA|EC|OPENSSH) PRIVATE KEY)" --exclude-dir=tests . || (echo "Possible secret committed" && exit 1)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-test-results
+          path: backend/junit.xml
