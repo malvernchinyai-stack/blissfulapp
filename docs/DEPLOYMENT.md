@@ -1,8 +1,28 @@
 # Deploying the staging environment — app.blissfulevents.co.zw
 
-Status on 28 Oct 2026: **prepared, not deployed.** No hosting, DNS or SSH access was available from the build
-environment. Deployment is complete only when every check in §7 passes over HTTPS *and* the Android test build
+Status on 28 Oct 2026: **prepared, not deployed.** The build environment has no access to the server. Deployment is complete only when every check in §7 passes over HTTPS *and* the Android test build
 completes the core flows against it.
+
+## 0. Quick path (confirmed: domain is on the same DirectAdmin account, SSH available)
+
+DNS needs no manual changes — adding the subdomain in DirectAdmin creates the `app` record.
+
+1. **DirectAdmin → Subdomain Management** → add `app` under `blissfulevents.co.zw`.
+2. **DirectAdmin → MySQL Management** → create a new database + user for staging (write down the password).
+3. **DirectAdmin → PHP version** for the domain → 8.2 or newer.
+4. **DirectAdmin → SSL Certificates** → Let's Encrypt including `app.blissfulevents.co.zw` → tick *Force SSL with https redirect*.
+5. Upload `blissful-gigs.zip` to your home folder (File Manager or `scp blissful-gigs.zip USER@SERVER:~`), then over SSH:
+   ```
+   cd ~ && unzip -q blissful-gigs.zip
+   bash ~/blissful-gigs/backend/bin/install-staging.sh
+   ```
+   It asks for the database details, an admin email, and whether to load sample data. It then writes `.env`
+   (secrets generated on the server), runs migrations, installs the web files, creates the admin (prints a
+   temporary password), installs the two cron jobs, and checks the site over HTTPS. Safe to re-run.
+6. Open `https://app.blissfulevents.co.zw/admin`, sign in, scan the key into an authenticator app.
+
+The installer was tested on 28 Oct 2026 against a simulated DirectAdmin home folder (fresh install + re-run);
+the real server run, cron and HTTPS checks have not happened yet.
 
 ## 1. What runs where
 

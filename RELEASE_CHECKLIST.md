@@ -15,8 +15,8 @@
 - [ ] Emulator smoke test passes in CI.
 
 ## Blockers for staging (app.blissfulevents.co.zw)
-- [ ] DirectAdmin: confirm `blissfulevents.co.zw` is on the account, PHP 8.2+, SSH access, cron enabled.
-- [ ] DNS: `A app → server IP` (if DNS is not on the DirectAdmin server).
+- [x] Domain is on the Blissful DirectAdmin account; SSH available (confirmed 28 Oct). DNS is automatic.
+- [ ] Subdomain `app`, staging database, PHP 8.2+, Let's Encrypt — then run `backend/bin/install-staging.sh` (docs/DEPLOYMENT.md §0).
 - [ ] Staging database + user created; `.env` filled from `.env.example`.
 - [ ] Let's Encrypt certificate issued; HTTPS forced.
 - [ ] Migrations, sample data, first superadmin with authenticator enrolled.
