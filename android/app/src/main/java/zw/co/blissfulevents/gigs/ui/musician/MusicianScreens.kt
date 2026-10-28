@@ -51,7 +51,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import zw.co.blissfulevents.gigs.data.api.AvailabilityBlock
 import zw.co.blissfulevents.gigs.data.api.GigRequest
+import zw.co.blissfulevents.gigs.data.api.UnavailableBody
 import zw.co.blissfulevents.gigs.data.api.MusicianProfile
 import zw.co.blissfulevents.gigs.data.api.MusicianProfileBody
 import zw.co.blissfulevents.gigs.data.api.MyProfiles
@@ -100,7 +102,7 @@ fun FeedScreen(onOpen: (Long) -> Unit, onEditProfile: () -> Unit) {
                 FilterChip(selected = !anywhere, onClick = { anywhere = false }, label = { Text("Within my travel range") })
                 FilterChip(selected = anywhere, onClick = { anywhere = true }, label = { Text("Anywhere") })
             }
-            PullToRefreshBox(isRefreshing = (state as? UiState.Ready)?.refreshing == true, onRefresh = { vm.load() }) {
+            PullToRefreshBox(isRefreshing = (state as? UiState.Ready<*>)?.refreshing == true, onRefresh = { vm.load() }) {
                 Stateful(state, onRetry = { vm.load() }) { page ->
                     if (page.items.isEmpty()) EmptyBox("No matching requests right now", "We'll notify you when a client needs your instrument nearby. Pull down to refresh.")
                     else LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -286,8 +288,51 @@ fun EditMusicianProfileScreen(onBack: () -> Unit) {
                         }
                     }
                 }
+                if (p != null) AvailabilitySection()
                 Spacer(Modifier.height(24.dp))
             }
         }
+    }
+}
+
+/** Days the musician can't play. Matching skips them so no notifications arrive for those dates. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AvailabilitySection() {
+    val c = container()
+    val vm: ResourceViewModel<List<AvailabilityBlock>> = viewModel(key = "availability") { ResourceViewModel { c.api.availability().items } }
+    val state by vm.state.collectAsState()
+    val msg by vm.message.collectAsState()
+    var picking by remember { mutableStateOf(false) }
+    val zone = "Africa/Harare"
+    SectionCard(title = "Unavailable days") {
+        Text("You won't be notified about requests on these days.", style = MaterialTheme.typography.bodySmall)
+        msg?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+        Stateful(state, onRetry = { vm.load() }) { blocks ->
+            if (blocks.isEmpty()) Text("None", style = MaterialTheme.typography.bodySmall)
+            blocks.forEach { b ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(TimeFormat.eventTimeRange(b.startsAt, b.endsAt, zone), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                    IconButton(onClick = { vm.act(null, { c.api.deleteUnavailable(b.id).items }) { vm.replace(it) } }) { Icon(Icons.Filled.Delete, "Remove") }
+                }
+            }
+        }
+        TextButton(onClick = { picking = true }) { Text("+ Add an unavailable day") }
+    }
+    if (picking) {
+        val dp = androidx.compose.material3.rememberDatePickerState()
+        androidx.compose.material3.DatePickerDialog(
+            onDismissRequest = { picking = false },
+            confirmButton = {
+                TextButton(enabled = dp.selectedDateMillis != null, onClick = {
+                    picking = false
+                    val day = java.time.Instant.ofEpochMilli(dp.selectedDateMillis ?: 0).atZone(java.time.ZoneOffset.UTC).toLocalDate()
+                    val body = UnavailableBody(TimeFormat.toIso(day, java.time.LocalTime.MIDNIGHT, zone),
+                        TimeFormat.toIso(day.plusDays(1), java.time.LocalTime.MIDNIGHT, zone))
+                    vm.act("Saved.", { c.api.addUnavailable(body).items }) { vm.replace(it) }
+                }) { Text("Save") }
+            },
+            dismissButton = { TextButton(onClick = { picking = false }) { Text("Cancel") } },
+        ) { androidx.compose.material3.DatePicker(dp) }
     }
 }

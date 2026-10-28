@@ -47,6 +47,9 @@ interface ApiService {
     @GET("clients/{id}") suspend fun client(@Path("id") id: Long): ClientProfile
     @POST("portfolio") suspend fun addPortfolio(@Body body: PortfolioBody): MusicianProfile
     @POST("verifications") suspend fun requestVerification(@Body body: VerificationBody): StatusResponse
+    @GET("availability") suspend fun availability(): Items<AvailabilityBlock>
+    @POST("availability") suspend fun addUnavailable(@Body body: UnavailableBody): Items<AvailabilityBlock>
+    @DELETE("availability/{id}") suspend fun deleteUnavailable(@Path("id") id: Long): Items<AvailabilityBlock>
     @DELETE("portfolio/{id}") suspend fun deletePortfolio(@Path("id") id: Long): MusicianProfile
 
     @Multipart @POST("files")

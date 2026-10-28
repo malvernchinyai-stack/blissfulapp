@@ -3,7 +3,7 @@
 ## Summary
 | | Status |
 |---|---|
-| Backend API, database, jobs, admin dashboard, web pages | **Implemented and tested** (77 automated tests passing) |
+| Backend API, database, jobs, admin dashboard, web pages | **Implemented and tested** (78 automated tests passing) |
 | Android app (all screens wired to the real API) | **Implemented, not yet compiled or run** |
 | Staging at app.blissfulevents.co.zw | **Prepared, not deployed** (no hosting/DNS access) |
 | Payments | **Sandbox only, tested.** Paynow adapter written, untested against Paynow; live disabled |

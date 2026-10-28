@@ -6,12 +6,12 @@ Only tests that were actually run are reported as passing. Raw output is in `doc
 Ubuntu 24.04 · PHP 8.3.6 CLI · MariaDB 10.11.14 · PHPUnit 9.6.17. (The DirectAdmin host must run PHP 8.2+; CI uses 8.2.)
 
 ## Backend — RUN, ALL PASSING
-**77 tests, 1,044 assertions, 0 failures** (full suite run twice in a row with identical results; concurrency suite also run 3× on its own).
+**78 tests, 1,058 assertions, 0 failures** (full suite run twice in a row with identical results; concurrency suite also run 3× on its own).
 
 | Area | Tests | What is covered |
 |---|---|---|
 | Authentication & accounts | 13 | sign-up + email code, no account enumeration (sign-up, login, recovery), weak passwords, code attempt limit, lockout, IP rate limit, refresh rotation + reuse detection, token expiry, reset revokes sessions, one account / two roles, logout, password change, account deletion rules |
-| Marketplace | 12 | request validation (dates, deadline, duplicates, float money, currency), draft→publish, UTC storage of `+02:00` input, matching by instrument/range/availability, offer rules (own request, wrong instrument, extras need a note), edit/withdraw/resubmit with history, counter-offers needing explicit acceptance + stale-version refusal, acceptance closing positions, multi-position capacity, one place per musician per event, overlap prevention incl. setup time, request cancellation, deadline extension and automatic expiry |
+| Marketplace | 13 | unavailable days suppress matching, request validation (dates, deadline, duplicates, float money, currency), draft→publish, UTC storage of `+02:00` input, matching by instrument/range/availability, offer rules (own request, wrong instrument, extras need a note), edit/withdraw/resubmit with history, counter-offers needing explicit acceptance + stale-version refusal, acceptance closing positions, multi-position capacity, one place per musician per event, overlap prevention incl. setup time, request cancellation, deadline extension and automatic expiry |
 | Concurrency (real parallel OS processes vs MariaDB) | 4 | 8 musicians racing for 1 seat → exactly 1 booking; same offer accepted 6× at once → 1; 7 racing for 2 places → 2; one musician double-booked by 4 clients at overlapping times → 1 |
 | Bookings | 11 | visibility, 3 cancellation tiers, musician cancellation (free, place reopens), policy frozen at booking time, reschedule needs other party, reschedule conflict, completion by both parties, reviews (once each, only after completion, no outsiders), dispute window, disputes pausing auto-complete + staff resolution, reminders sent once, auto-complete |
 | Payments | 9 | sandbox success, duplicate webhooks, forged signatures, amount mismatch, failure then retry, provider outage reported honestly, refund once per booking, payment arriving after cancellation refunded, payouts after dispute window, Idempotency-Key replay/mismatch, Paynow hash + status mapping, live mode refused without flag |

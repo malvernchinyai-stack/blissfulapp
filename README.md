@@ -4,7 +4,7 @@ A marketplace that connects musicians with churches, event planners, venues, bus
 Clients post a request with a budget, musicians send offers, the client compares and books, then both sides
 chat, pay, complete and review.
 
-> **Status (28 Oct 2026):** backend + admin are built and tested (77 passing tests). The Android app is written
+> **Status (28 Oct 2026):** backend + admin are built and tested (78 passing tests). The Android app is written
 > but **not yet compiled** (needs GitHub Actions). Staging is **prepared, not deployed**. See `RELEASE_CHECKLIST.md`.
 
 ## Repository

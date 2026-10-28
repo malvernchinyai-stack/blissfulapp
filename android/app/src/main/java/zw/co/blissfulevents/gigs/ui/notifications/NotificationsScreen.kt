@@ -60,7 +60,7 @@ fun NotificationsScreen(onOpenBooking: (Long) -> Unit, onOpenRequest: (Long) -> 
     AppScaffold("Inbox", actions = {
         IconButton(onClick = onPrefs) { Icon(Icons.Filled.Settings, "Notification settings") }
     }) { m ->
-        PullToRefreshBox(isRefreshing = (state as? UiState.Ready)?.refreshing == true, onRefresh = { vm.load() }, modifier = m) {
+        PullToRefreshBox(isRefreshing = (state as? UiState.Ready<*>)?.refreshing == true, onRefresh = { vm.load() }, modifier = m) {
             Stateful(state, onRetry = { vm.load() }) { page ->
                 if (page.items.isEmpty()) EmptyBox("All caught up", "Offers, bookings, messages and reminders will appear here.")
                 else LazyColumn(contentPadding = PaddingValues(vertical = 8.dp)) {

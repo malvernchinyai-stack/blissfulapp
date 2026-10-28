@@ -407,4 +407,6 @@ import kotlinx.serialization.json.JsonObject
 @Serializable data class SupportBody(val subject: String, val message: String)
 @Serializable data class PortfolioBody(val kind: String, val url: String? = null, val fileId: Long? = null, val title: String? = null)
 @Serializable data class VerificationBody(val kind: String, val documentFileId: Long? = null)
+@Serializable data class AvailabilityBlock(val id: Long, val startsAt: String, val endsAt: String, val note: String? = null)
+@Serializable data class UnavailableBody(val startsAt: String, val endsAt: String, val note: String? = null)
 @Serializable data class EmptyBody(val ok: Boolean = true)

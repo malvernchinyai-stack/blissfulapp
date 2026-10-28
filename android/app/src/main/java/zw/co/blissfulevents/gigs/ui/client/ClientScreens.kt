@@ -101,7 +101,7 @@ fun ClientRequestsScreen(onCreate: () -> Unit, onOpen: (Long) -> Unit) {
                     FilterChip(selected = filter == v, onClick = { filter = v }, label = { Text(l) })
                 }
             }
-            PullToRefreshBox(isRefreshing = (state as? zw.co.blissfulevents.gigs.ui.common.UiState.Ready)?.refreshing == true, onRefresh = { vm.load() }) {
+            PullToRefreshBox(isRefreshing = (state as? zw.co.blissfulevents.gigs.ui.common.UiState.Ready<*>)?.refreshing == true, onRefresh = { vm.load() }) {
                 Stateful(state, onRetry = { vm.load() }) { page ->
                     if (page.items.isEmpty()) {
                         EmptyBox("No requests here", "Post a request with your date, instruments and budget. Musicians will send you offers.") {

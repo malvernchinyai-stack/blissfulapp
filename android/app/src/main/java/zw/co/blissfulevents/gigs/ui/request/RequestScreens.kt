@@ -91,7 +91,7 @@ fun RequestDetailScreen(
     var reporting by remember { mutableStateOf(false) }
 
     AppScaffold("Request", onBack = onBack, snackbar = snack, actions = {
-        val r = (state as? zw.co.blissfulevents.gigs.ui.common.UiState.Ready)?.data
+        val r = (state as? zw.co.blissfulevents.gigs.ui.common.UiState.Ready<*>)?.data as? GigRequest
         if (r != null && !r.isOwner) IconButton(onClick = { reporting = true }) { Icon(Icons.Filled.Flag, "Report this request") }
     }) { m ->
         Stateful(state, onRetry = { vm.load() }, modifier = m) { r ->

@@ -88,6 +88,26 @@ final class MarketplaceTest extends TestCase
         $this->assertSame(1, (int) Db::get()->value("SELECT COUNT(*) FROM notifications WHERE type = 'request_match'"));
     }
 
+    public function testUnavailableDaysSuppressMatching(): void
+    {
+        $free = $this->musician('free@example.test');
+        $away = $this->musician('away@example.test');
+        $day = Clock::now()->modify('+10 days')->setTime(0, 0);
+        [$s, $b] = $this->call('POST', '/api/availability', ['starts_at' => $day->format('Y-m-d\TH:i:s\Z'),
+            'ends_at' => $day->modify('+1 day')->format('Y-m-d\TH:i:s\Z')], $away['token']);
+        $this->assertSame(200, $s, json_encode($b));
+        $this->assertCount(1, $b['items']);
+        [$s] = $this->call('POST', '/api/availability', ['starts_at' => $day->format('Y-m-d\TH:i:s\Z'),
+            'ends_at' => $day->modify('-1 day')->format('Y-m-d\TH:i:s\Z')], $away['token']);
+        $this->assertSame(422, $s, 'end must be after start');
+        $c = $this->user('client@example.test');
+        $this->openRequest($c['token']);
+        $notified = array_map('intval', array_column(Db::get()->all("SELECT user_id FROM notifications WHERE type = 'request_match'"), 'user_id'));
+        $this->assertSame([$free['id']], $notified);
+        [$s, $b] = $this->call('DELETE', '/api/availability/' . $b['items'][0]['id'], null, $away['token']);
+        $this->assertSame([], $b['items']);
+    }
+
     public function testOfferRules(): void
     {
         $c = $this->user('client@example.test');
