@@ -43,10 +43,20 @@ if [ -f "$ENV_FILE" ]; then
   say ".env already exists — keeping it."
 else
   say "Database details (from DirectAdmin → MySQL Management)"
-  DB_NAME=$(ask "Database name")
-  DB_USER=$(ask "Database user" "$DB_NAME")
-  DB_PASS=$(ask_secret "Database password")
-  SUPPORT=$(ask "Support email shown to testers" "support@$DOMAIN")
+  DB_NAME="${DB_NAME_IN:-}"; [ -n "$DB_NAME" ] || DB_NAME=$(ask "Database name")
+  DB_USER="${DB_USER_IN:-}"; [ -n "$DB_USER" ] || DB_USER=$(ask "Database user" "$DB_NAME")
+  echo "Database: $DB_NAME   User: $DB_USER"
+  # Ask for the password until it actually connects; nothing is saved before that.
+  for attempt in 1 2 3 4 5; do
+    DB_PASS=$(ask_secret "Paste the database password, then press Enter (nothing will show)")
+    DB_PASS=$(printf '%s' "$DB_PASS" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    if BG_N="$DB_NAME" BG_U="$DB_USER" BG_P="$DB_PASS" "$PHP_BIN" -r 'try { new PDO("mysql:host=localhost;dbname=".getenv("BG_N"), getenv("BG_U"), getenv("BG_P")); exit(0); } catch (Throwable $e) { exit(1); }'; then
+      echo "Password accepted (${#DB_PASS} characters) — database connection OK."; break
+    fi
+    echo "That password did not work (${#DB_PASS} characters received). Please paste it again."
+    [ "$attempt" = 5 ] && { echo "Giving up after 5 tries. Nothing was saved." >&2; exit 1; }
+  done
+  if [ "${AUTO:-}" = "1" ]; then SUPPORT="support@$DOMAIN"; else SUPPORT=$(ask "Support email shown to testers" "support@$DOMAIN"); fi
   DL_PASS=$("$PHP_BIN" -r 'echo bin2hex(random_bytes(6));')
   umask 077
   cat > "$ENV_FILE" <<EOF
@@ -91,14 +101,19 @@ if [ -f "$WEB_ROOT/index.html" ]; then mv "$WEB_ROOT/index.html" "$WEB_ROOT/inde
 
 # ---- sample data
 users=$("$PHP_BIN" -r 'require "'"$APP_DIR"'/src/bootstrap.php"; echo \Blissful\Db::get()->value("SELECT COUNT(*) FROM users");')
-if [ "$users" = "0" ] && [ "$(ask "Load fictional sample users and a sample request for testers? (y/n)" y)" = "y" ]; then
-  SEED_PW=$(ask "Password for all sample accounts" "Sample-$("$PHP_BIN" -r 'echo bin2hex(random_bytes(3));')")
+if [ "${AUTO:-}" = "1" ]; then WANT_SEED=y; else WANT_SEED=""; fi
+if [ "$users" = "0" ] && [ "${WANT_SEED:-$(ask "Load fictional sample users and a sample request for testers? (y/n)" y)}" = "y" ]; then
+  GEN_PW="Sample-$("$PHP_BIN" -r 'echo bin2hex(random_bytes(3));')"
+  if [ "${AUTO:-}" = "1" ]; then SEED_PW="$GEN_PW"; else SEED_PW=$(ask "Password for all sample accounts" "$GEN_PW"); fi
   SEED_PASSWORD="$SEED_PW" "$PHP_BIN" "$APP_DIR/bin/seed.php"
 fi
 
 # ---- first admin
 staff=$("$PHP_BIN" -r 'require "'"$APP_DIR"'/src/bootstrap.php"; echo \Blissful\Db::get()->value("SELECT COUNT(*) FROM staff");')
-if [ "$staff" = "0" ]; then
+if [ "$staff" = "0" ] && [ "${AUTO:-}" = "1" ]; then
+  say "Last step for you — create your admin login by running (with your own email and name):"
+  echo "  $PHP_BIN $APP_DIR/bin/create-admin.php you@example.com \"Your Name\" superadmin"
+elif [ "$staff" = "0" ]; then
   say "Create the first administrator"
   A_EMAIL=$(ask "Admin email")
   A_NAME=$(ask "Admin full name")

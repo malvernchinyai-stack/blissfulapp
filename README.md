@@ -5,7 +5,7 @@ Clients post a request with a budget, musicians send offers, the client compares
 chat, pay, complete and review.
 
 > **Status (28 Oct 2026):** backend + admin are built and tested (78 passing tests). The Android app is written
-> but **not yet compiled** (needs GitHub Actions). Staging is **prepared, not deployed**. See `RELEASE_CHECKLIST.md`.
+> but **not yet compiled** (needs GitHub Actions). Staging backend is **live at https://app.blissfulevents.co.zw** (sample data, sandbox payments). See `RELEASE_CHECKLIST.md`.
 
 ## Repository
 ```

@@ -27,6 +27,12 @@ Ubuntu 24.04 · PHP 8.3.6 CLI · MariaDB 10.11.14 · PHPUnit 9.6.17. (The Direct
 - **Backup & restore drill**: see OPERATIONS.md — verified.
 - **Seed script** creates sample data through the real services (requests, matching, offers).
 
+## Staging server — RUN 28 Oct 2026 (app.blissfulevents.co.zw)
+DirectAdmin + CloudLinux, PHP 8.5.6, MariaDB 10.6. All backend PHP files linted on 8.5 with `error_reporting=-1` (no warnings) and every class loaded.
+Installer results: database connection OK, 5 migrations applied, sample data seeded, cron installed and scheduled jobs ran once.
+Live HTTPS checks: `/health` OK, `/api/catalog` 200 with data, `/admin` 303, `/.app-path` 403, `http→https` 301, bad login → `invalid_credentials`.
+Not yet done on staging: admin sign-in with authenticator, full booking journey, email delivery, mobile app against it.
+
 ## Android — NOT YET RUN
 This build environment cannot reach Google's Android SDK / Maven servers, and running a downloaded Kotlin compiler was not permitted, so **the Android code has not been compiled or executed yet.**
 Written and wired to run in GitHub Actions (`.github/workflows/android.yml`):
@@ -37,6 +43,6 @@ Written and wired to run in GitHub Actions (`.github/workflows/android.yml`):
 Expect the first CI run to surface compile errors that need fixing; that iteration has not happened yet.
 
 ## Not tested
-- Anything against the real staging server (not deployed), real email delivery, Paynow's servers, Firebase push delivery.
+- Full user journeys on the staging server, real email delivery, Paynow's servers, Firebase push delivery.
 - Android end-to-end journeys on a device or emulator against a hosted backend.
 - Load/performance beyond the concurrency tests; independent security testing.

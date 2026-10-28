@@ -5,7 +5,7 @@
 |---|---|
 | Backend API, database, jobs, admin dashboard, web pages | **Implemented and tested** (78 automated tests passing) |
 | Android app (all screens wired to the real API) | **Implemented, not yet compiled or run** |
-| Staging at app.blissfulevents.co.zw | **Prepared, not deployed** (no hosting/DNS access) |
+| Staging at app.blissfulevents.co.zw | **Deployed 28 Oct 2026** — backend live over HTTPS; Android app not yet tested against it |
 | Payments | **Sandbox only, tested.** Paynow adapter written, untested against Paynow; live disabled |
 | Push notifications | Implemented; needs a Firebase project; in-app inbox works without it |
 
@@ -16,14 +16,13 @@
 
 ## Blockers for staging (app.blissfulevents.co.zw)
 - [x] Domain is on the Blissful DirectAdmin account; SSH available (confirmed 28 Oct). DNS is automatic.
-- [ ] Subdomain `app`, staging database, PHP 8.2+, Let's Encrypt — then run `backend/bin/install-staging.sh` (docs/DEPLOYMENT.md §0).
-- [ ] Staging database + user created; `.env` filled from `.env.example`.
-- [ ] Let's Encrypt certificate issued; HTTPS forced.
-- [ ] Migrations, sample data, first superadmin with authenticator enrolled.
-- [ ] Cron jobs (every minute + daily backup) running.
+- [x] Subdomain `app` (docroot `domains/app.blissfulevents.co.zw/public_html`), database `blisszhq_blissapp`, PHP 8.5 via CloudLinux selector, existing wildcard certificate.
+- [x] Installer run 28 Oct: `.env` written on server, 5 migrations, sample data, web files, cron jobs installed.
+- [ ] First superadmin created (`bin/create-admin.php`) and authenticator enrolled.
+- [ ] Rotate the staging DB password (it was shared in chat) and update `DB_PASS` in `.env`.
 - [ ] Mail: verification email arrives (check SPF/DKIM if it lands in spam).
 - [ ] GitHub `staging` environment secrets for the deploy workflow.
-- [ ] Deployment checks in docs/DEPLOYMENT.md §7 pass over HTTPS.
+- [x] Deployment checks pass over HTTPS (28 Oct): /health OK, /api/catalog 200, /admin 303, /.app-path 403, http→https 301; login rejects bad credentials.
 - [ ] Test APK uploaded; tester download password set.
 - [ ] **Core journeys completed on a real phone against staging**, results recorded in docs/TEST_REPORT.md.
 - [ ] Restore drill repeated on the server.
