@@ -23,7 +23,7 @@
 - [ ] Mail: verification email arrives (check SPF/DKIM if it lands in spam).
 - [ ] GitHub `staging` environment secrets for the deploy workflow.
 - [x] Deployment checks pass over HTTPS (28 Oct): /health OK, /api/catalog 200, /admin 303, /.app-path 403, http→https 301; login rejects bad credentials.
-- [ ] Test APK uploaded to `storage/app/` on the server (tester download password set: yes).
+- [x] Test APK (CI run 2) uploaded 30 Oct; download link verified: 401 without login, 200 with tester login, checksum matches CI.
 - [ ] **Core journeys completed on a real phone against staging**, results recorded in docs/TEST_REPORT.md.
 - [ ] Restore drill repeated on the server.
 
