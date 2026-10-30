@@ -4,15 +4,15 @@
 | | Status |
 |---|---|
 | Backend API, database, jobs, admin dashboard, web pages | **Implemented and tested** (78 automated tests passing) |
-| Android app (all screens wired to the real API) | **Implemented, not yet compiled or run** |
+| Android app (all screens wired to the real API) | **Builds in CI; unit, lint and emulator smoke tests pass** (30 Oct); not yet tried on a phone |
 | Staging at app.blissfulevents.co.zw | **Deployed 28 Oct 2026** — backend live over HTTPS; Android app not yet tested against it |
 | Payments | **Sandbox only, tested.** Paynow adapter written, untested against Paynow; live disabled |
 | Push notifications | Implemented; needs a Firebase project; in-app inbox works without it |
 
 ## Blockers for the test APK (in order)
-- [ ] **GitHub repository**: connect GitHub to Claude (claude.ai → Settings → Connectors) and create an empty private repo, then push this project.
-- [ ] **First Android CI run**: fix any compile/lint errors until `Android CI` is green and produces `blissful-gigs-testing-apk`.
-- [ ] Emulator smoke test passes in CI.
+- [x] **GitHub repository**: `malvernchinyai-stack/blissfulapp` (pushed 30 Oct).
+- [x] **First Android CI run** green (30 Oct); APK published to the `test-builds` branch.
+- [x] Emulator smoke test passes in CI.
 
 ## Blockers for staging (app.blissfulevents.co.zw)
 - [x] Domain is on the Blissful DirectAdmin account; SSH available (confirmed 28 Oct). DNS is automatic.
@@ -23,7 +23,7 @@
 - [ ] Mail: verification email arrives (check SPF/DKIM if it lands in spam).
 - [ ] GitHub `staging` environment secrets for the deploy workflow.
 - [x] Deployment checks pass over HTTPS (28 Oct): /health OK, /api/catalog 200, /admin 303, /.app-path 403, http→https 301; login rejects bad credentials.
-- [ ] Test APK uploaded; tester download password set.
+- [ ] Test APK uploaded to `storage/app/` on the server (tester download password set: yes).
 - [ ] **Core journeys completed on a real phone against staging**, results recorded in docs/TEST_REPORT.md.
 - [ ] Restore drill repeated on the server.
 

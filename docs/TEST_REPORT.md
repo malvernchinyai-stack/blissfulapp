@@ -33,14 +33,13 @@ Installer results: database connection OK, 5 migrations applied, sample data see
 Live HTTPS checks: `/health` OK, `/api/catalog` 200 with data, `/admin` 303, `/.app-path` 403, `http→https` 301, bad login → `invalid_credentials`.
 Not yet done on staging: admin sign-in with authenticator, full booking journey, email delivery, mobile app against it.
 
-## Android — NOT YET RUN
-This build environment cannot reach Google's Android SDK / Maven servers, and running a downloaded Kotlin compiler was not permitted, so **the Android code has not been compiled or executed yet.**
-Written and wired to run in GitHub Actions (`.github/workflows/android.yml`):
-- JVM unit tests: `FormatTest` (6: money, rounding parity with server, event time zones, ISO conversion, error parsing) and `ApiClientTest` (7: token refresh single-flight, rejected refresh signs out, network failure keeps session, idempotency keys, conflict messages, timeouts → offline, snake_case decoding).
-- Android lint (fails the build on errors), staging APK build, release bundle when signing secrets exist.
-- Emulator UI smoke test `WelcomeFlowTest` (onboarding → sign-up → sign-in).
-
-Expect the first CI run to surface compile errors that need fixing; that iteration has not happened yet.
+## Android — RUN in GitHub Actions, 30 Oct 2026 (runs 1 and 2, all green on first attempt)
+- JVM unit tests `FormatTest` (6) and `ApiClientTest` (7): passed.
+- Staging APK built (`assembleStaging`, points at https://app.blissfulevents.co.zw/api/), 2.5 MB; published to the `test-builds` branch with a SHA-256 checksum.
+- Android lint (`lintStaging`, errors fail the build): passed.
+- Emulator UI smoke test `WelcomeFlowTest` on API 34 (onboarding → sign-up → sign-in screens): passed.
+- Signed release bundle: skipped (no signing secrets — expected).
+Not yet done: the app has not been run against the live staging server or on a real phone.
 
 ## Not tested
 - Full user journeys on the staging server, real email delivery, Paynow's servers, Firebase push delivery.
