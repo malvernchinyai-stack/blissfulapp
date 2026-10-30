@@ -86,3 +86,28 @@ jobs:
           target: google_apis
           working-directory: android
           script: ./gradlew --no-daemon connectedDebugAndroidTest
+
+  publish-test-apk:
+    # Keeps the latest testing APK on the `test-builds` branch so it can be copied to the staging server.
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: blissful-gigs-testing-apk
+          path: apk
+      - name: Push APK to test-builds branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          mkdir out && cd out
+          git init -q -b test-builds
+          cp ../apk/*.apk blissful-gigs-testing.apk
+          sha256sum blissful-gigs-testing.apk > blissful-gigs-testing.apk.sha256
+          printf 'Built from %s (run %s) on %s\n' "$GITHUB_SHA" "$GITHUB_RUN_NUMBER" "$(date -u +%FT%TZ)" > BUILD-INFO.txt
+          git add . && git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "Test APK from run $GITHUB_RUN_NUMBER"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" test-builds
